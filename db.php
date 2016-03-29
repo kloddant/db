@@ -3,8 +3,10 @@
 function connect($host = "", $db_username = "", $db_password = "", $database = "") {
 	$connection = mysqli_connect($host, $db_username, $db_password, $database);
 	if (!$connection) {
+		//Insert your own error message here.
 	}
 	$connection->set_charset("utf8");
+	$GLOBALS['connection'] = $connection;
 	return $connection;
 }
 
@@ -17,12 +19,11 @@ Parameters:
 	$sql: (string, required)  The sql string. 
 Returns: A prepared statement object.
 */
-function prepare($sql) {
-	global $connection;
+function prepare($sql, $connection = $GLOBALS['connection']) {
 	// Prepare the statement.
 	if (!($stmt = $connection->prepare($sql))) {
+		//Insert your own error message here.
 	}
-
 	return $stmt;
 }
 
@@ -51,21 +52,11 @@ Parameters:
 	$types: 	(string, optional)  	The string of types that is supposed to accompany the parameters array, in the same order.
 						Any types that are omitted will be treated as strings. 
 						i = integer, d = double, s = string, b = blob.
-Returns: An associative array of results for SELECT statements or the stmt object otherwise.
-Preconditions: Ideally, the refValues function needs to be defined outside so that it doesn't need to be redefined each time this function runs.
+Returns: An associative array of results for SELECT statements or the last inserted id otherwise.
+Preconditions: Ideally, the convert_to_reference function needs to be defined outside so that it doesn't need to be redefined each time this function runs.
 */
-function execute($stmt, $parameters = array(), $types = '') {
-	global $connection;
+function execute($stmt, $parameters = array(), $types = '', $connection = $GLOBALS['connection']) {
 	if (count($parameters) > 0) {
-		// Define a function that will allow us to pass the bind_param variables as references instead of as values.
-		if (!function_exists('refValues')) {
-			function refValues($arr){
-			    $refs = array();
-			    foreach($arr as $key => $value)
-			        $refs[$key] = &$arr[$key];
-			    return $refs;
-			}
-		}
 		// Rectify any inconsistencies between $parameters and $types.
 		$difference = count($parameters) - strlen($types);
 		if ($difference > 0) {
@@ -96,6 +87,7 @@ function execute($stmt, $parameters = array(), $types = '') {
         		$params[$key] = &$field->name;
         	} 
         	else {
+        		//Insert your own error message here.
         	}
 	    }
 	    call_user_func_array(array($stmt, 'bind_result'), $params);
