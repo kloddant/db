@@ -35,7 +35,6 @@ Purpose: To convert values to variable references.
 Parameters:
 	$value (string, required)	An value to be converted to a reference. 
 Returns: The input variable converted into a reference instead of a variable.
-Note: Helper function for convert_to_references.
 */
 function convert_to_reference(&$value) {
     return $value;
@@ -120,9 +119,9 @@ Parameters:
 Returns: An associative array of results for SELECT statements or the stmt object otherwise.
 Preconditions: The prepare and execute functions must be defined.
 */
-function query($sql, $parameters = array(), $types = '') {
-	$stmt = prepare($sql);
-	return execute($stmt, $parameters, $types);
+function query($sql, $parameters = array(), $types = '', $connection = $GLOBALS['connection']) {
+	$stmt = prepare($sql, $connection);
+	return execute($stmt, $parameters, $types, $connection);
 }
 
 ?>
