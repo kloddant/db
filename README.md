@@ -23,3 +23,5 @@ For an insert statement, also just use query.  It will return the last inserted 
 		INSERT INTO stuff (thing, money, index)
 		VALUES (?, ?, ?);
 	", array($dodad, $cost, $index), 'sdi');
+
+The third parameter in both of these examples is the types string.  s indicates a string, d indicates a double, and i indicates an integer.  If this parameter is omitted, all variables that are used in the sql statements will be treated as strings.
