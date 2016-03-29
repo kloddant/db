@@ -9,9 +9,9 @@ To make the initial connection, use connect.  Connect stores the connection in t
 
 	connect($host = "", $db_username = "", $db_password = "", $database = "")
 
-For a select, update, or delete statement, just use query.  If no connection is specified, query will use the one that is in the $GLOBALS['connection'] variable.
+For a select, update, or delete statement, just use query.  If no connection is specified, query will use the one that is in the $GLOBALS['connection'] variable.  For a select statement, query returns a numeric array of associative arrays that can be accessed like $results[0]['thing'].
 
-	query("
+	$results = query("
 		SELECT *
 		FROM stuff
 		WHERE thing = ? AND money = ? AND index = ?;
