@@ -46,11 +46,11 @@ function convert_to_reference(&$value) {
 Procedure: execute
 Purpose: To execute prepared queries and return the results.
 Parameters:
-	$stmt: 			(object, required)  The prepared statement. 
-	$parameters: 	(array, required)  	The array of parameters that is supposed to go into the sql string.
-	$types: 		(string, optional)	The string of types that is supposed to accompany the parameters array, in the same order.
-										Any types that are omitted will be treated as strings. 
-										i = integer, d = double, s = string, b = blob.
+	$stmt: 		(object, required)  	The prepared statement. 
+	$parameters: 	(array, required	The array of parameters that is supposed to go into the sql string.
+	$types: 	(string, optional)  	The string of types that is supposed to accompany the parameters array, in the same order.
+						Any types that are omitted will be treated as strings. 
+						i = integer, d = double, s = string, b = blob.
 Returns: An associative array of results for SELECT statements or the stmt object otherwise.
 Preconditions: Ideally, the refValues function needs to be defined outside so that it doesn't need to be redefined each time this function runs.
 */
@@ -120,11 +120,11 @@ function execute($stmt, $parameters = array(), $types = '') {
 Procedure: query
 Purpose: To perform prepared statement queries on the database.  This is a shortcut for the prepare and execute functions that is good for one-time uses.
 Parameters:
-	$sql: 		 	(string, required)  The sql string.
+	$sql: 		 (string, required)  	The sql string.
 	$parameters: 	(array, required)  	The array of parameters that is supposed to go into the sql string.
-	$types: 		(string, optional)	The string of types that is supposed to accompany the parameters array, in the same order.
-										Any types that are omitted will be treated as strings. 
-										i = integer, d = double, s = string, b = blob. 
+	$types: 	(string, optional)	The string of types that is supposed to accompany the parameters array, in the same order.
+						Any types that are omitted will be treated as strings. 
+						i = integer, d = double, s = string, b = blob. 
 Returns: An associative array of results for SELECT statements or the stmt object otherwise.
 Preconditions: The prepare and execute functions must be defined.
 */
