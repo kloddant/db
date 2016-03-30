@@ -19,7 +19,10 @@ Parameters:
 	$sql: (string, required)  The sql string. 
 Returns: A prepared statement object.
 */
-function prepare($sql, $connection = $GLOBALS['connection']) {
+function prepare($sql, $connection) {
+	if (!isset($connection)) {
+		$connection = $GLOBALS['connection'];
+	}
 	// Prepare the statement.
 	if (!($stmt = $connection->prepare($sql))) {
 		//Insert your own error message here.
@@ -54,7 +57,10 @@ Parameters:
 Returns: An associative array of results for SELECT statements or the last inserted id otherwise.
 Preconditions: Ideally, the convert_to_reference function needs to be defined outside so that it doesn't need to be redefined each time this function runs.
 */
-function execute($stmt, $parameters = array(), $types = '', $connection = $GLOBALS['connection']) {
+function execute($stmt, $parameters = array(), $types = '', $connection) {
+	if (!isset($connection)) {
+		$connection = $GLOBALS['connection'];
+	}
 	if (count($parameters) > 0) {
 		// Rectify any inconsistencies between $parameters and $types.
 		$difference = count($parameters) - strlen($types);
@@ -119,7 +125,10 @@ Parameters:
 Returns: An associative array of results for SELECT statements or the stmt object otherwise.
 Preconditions: The prepare and execute functions must be defined.
 */
-function query($sql, $parameters = array(), $types = '', $connection = $GLOBALS['connection']) {
+function query($sql, $parameters = array(), $types = '', $connection) {
+	if (!isset($connection)) {
+		$connection = $GLOBALS['connection'];
+	}
 	$stmt = prepare($sql, $connection);
 	return execute($stmt, $parameters, $types, $connection);
 }
