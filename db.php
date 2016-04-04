@@ -101,9 +101,9 @@ function execute($stmt, $parameters = array(), $types = '', $connection = NULL) 
 	        $result[] = array_map("convert_to_reference", $params);
 	    }
 	}
-	// Otherwise, if the statement was INSERT, DELETE, UPDATE, or something, then return the last inserted id.
+	// Otherwise, if the statement was INSERT, DELETE, UPDATE, or something, then return $stmt.
 	else {
-		$result = $connection->insert_id;
+		$result = $stmt;
 	}
 
 	$stmt->free_result();
