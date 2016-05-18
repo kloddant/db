@@ -14,6 +14,9 @@ class sql {
 		if (!isset($password)) {
 			exit('Error: No database password defined.');
 		}
+		if (!isset($database)) {
+			exit('Error: No database defined.');
+		}
 
 		$connection = new mysqli($host, $username, $password, $database);
 		if (!$connection) {
