@@ -28,5 +28,5 @@ To perform a query that will return a large result set, use prepare, execute, an
     $stmt = $db->prepare($sql);
 	$executed_stmt = $this->execute($stmt, $parameters, $types);
 	while ($executed_stmt->fetch()) {
-		$results = $db->results;
+		$results = $db->row;
 	}
