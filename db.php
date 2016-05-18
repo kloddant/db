@@ -1,136 +1,120 @@
 <?php
 
-function connect($host = "", $db_username = "", $db_password = "", $database = "") {
-	$connection = mysqli_connect($host, $db_username, $db_password, $database);
-	if (!$connection) {
-		//Insert your own error message here.
+class sql {
+
+	public $connection;
+	public $results;
+
+	public function __construct($host = NULL, $username = NULL, $password = NULL, $database = NULL) {
+		$this->connect($host, $username, $password, $database);
 	}
-	$connection->set_charset("utf8");
-	$GLOBALS['connection'] = $connection;
-	return $connection;
-}
 
+	public function connect($host = "localhost", $username = "root", $password = NULL, $database = NULL) {
 
+		if (!isset($password)) {
+			exit('Error: No database password defined.');
+		}
 
-/*
-Procedure: prepare
-Purpose: To prepare sql queries.
-Parameters:
-	$sql: (string, required)  The sql string. 
-Returns: A prepared statement object.
-*/
-function prepare($sql, $connection = NULL) {
-	if (!isset($connection)) {
-		$connection = $GLOBALS['connection'];
+		$connection = new mysqli($host, $username, $password, $database);
+		if (!$connection) {
+			exit("Error: Could not connect to database.");
+		}
+
+		$connection->set_charset("utf8");
+
+		$this->connection = $connection;
+		return $connection;
 	}
-	// Prepare the statement.
-	if (!($stmt = $connection->prepare($sql))) {
-		//Insert your own error message here.
+
+	public function prepare($sql, $connection = NULL) {
+
+		if (!isset($connection)) {
+			$connection = $this->connection;
+		}
+		if (!($stmt = $connection->prepare($sql))) {
+		    echo "Prepare failed: (" . $connection->errno . ") " . $connection->error;
+		}
+		return $stmt;
+
 	}
-	return $stmt;
-}
 
-
-
-/*
-Procedure: convert_to_reference
-Purpose: To convert values to variable references.
-Parameters:
-	$value (string, required)	An value to be converted to a reference. 
-Returns: The input variable converted into a reference instead of a variable.
-*/
-function convert_to_reference(&$value) {
-    return $value;
-}
-
-
-
-/*
-Procedure: execute
-Purpose: To execute prepared queries and return the results.
-Parameters:
-	$stmt: 		(object, required)  	The prepared statement. 
-	$parameters: 	(array, required	The array of parameters that is supposed to go into the sql string.
-	$types: 	(string, optional)  	The string of types that is supposed to accompany the parameters array, in the same order.
-						Any types that are omitted will be treated as strings. 
-						i = integer, d = double, s = string, b = blob.
-Returns: An associative array of results for SELECT statements or the last inserted id otherwise.
-Preconditions: Ideally, the convert_to_reference function needs to be defined outside so that it doesn't need to be redefined each time this function runs.
-*/
-function execute($stmt, $parameters = array(), $types = '', $connection = NULL) {
-	if (!isset($connection)) {
-		$connection = $GLOBALS['connection'];
+	private static function convert_to_reference(&$value) {
+		return $value;
 	}
-	if (count($parameters) > 0) {
-		// Rectify any inconsistencies between $parameters and $types.
-		$difference = count($parameters) - strlen($types);
-		if ($difference > 0) {
-			for ($i = 0; $i < $difference; $i++) {
-				$types .= 's';
+
+	public function execute($stmt, $parameters = array(), $types = '') {
+
+		if (count($parameters) > 0) {
+			// Rectify any inconsistencies between $parameters and $types.
+			$number_of_parameters = count($parameters);
+			$number_of_types = strlen($types);
+			$difference = $number_of_parameters - $number_of_types;
+			if ($difference > 0) {
+				for ($i = $number_of_types; $i < $number_of_parameters; $i++) {
+					if (is_int($parameters[$i])) {
+						$types .= 'i';
+					}
+					else if (is_float($parameters[$i])) {
+						$types .= 'd';
+					}
+					else {
+						$types .= 's';
+					}
+				}
 			}
+			else if ($difference < 0) {
+				$types = substr($types, 0, $difference);
+			}
+			array_unshift($parameters, $types);
+			call_user_func_array(array($stmt, "bind_param"), array_map("sql::convert_to_reference", $parameters));
 		}
-		else if ($difference < 0) {
-			$types = substr($types, 0, $difference);
+
+		// Execute the statement.
+		if (!$stmt->execute()) {
+		    echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
 		}
-		// Add the $types string to the beginning of the parameters array.
-		array_unshift($parameters, $types);
-		// Bind the variables to the prepared statement.
-		call_user_func_array(array($stmt, "bind_param"), array_map("convert_to_reference", $parameters));
-		unset($parameters);
-	}
-	// Execute the statement.
-	if (!$stmt->execute()) {
-	}
-	// If the statement was a SELECT query, then return the results.
-	else if ($stmt->affected_rows < 0) {
-		$stmt->store_result();
-		$fields = $stmt->result_metadata()->fetch_fields();
-		$params = array();
-	    foreach ($fields as $field) {
-	        $key = str_replace(' ', '_', $field->name);
-	        if (!in_array($key, $params)) {
-        		$params[$key] = &$field->name;
-        	} 
-        	else {
-        		//Insert your own error message here.
-        	}
-	    }
-	    call_user_func_array(array($stmt, 'bind_result'), $params);
-    	$result = array();
-	    while ($stmt->fetch()) {
-	        $result[] = array_map("convert_to_reference", $params);
-	    }
-	}
-	// Otherwise, if the statement was INSERT, DELETE, UPDATE, or something, then return $stmt.
-	else {
-		$result = $stmt;
+		// If the statement was a SELECT query, then create the empty bound parameters array.
+		else if ($stmt->affected_rows < 0) {
+			$stmt->store_result();
+			$fields = $stmt->result_metadata()->fetch_fields();
+			$params = array();
+			$duplicates = array();
+		    foreach ($fields as $field) {
+		        $key = str_replace(' ', '_', $field->name);
+		        if (!array_key_exists($key, $duplicates)) {
+		        	$duplicates[$key] = 0;
+		    	}
+		        if (!array_key_exists($key, $params)) {
+	        		$params[$key] = &$field->name;
+	        	} 
+	        	else {
+	        		$duplicates[$key] += 1;
+	        		$params["duplicate_".$key."_".$duplicates[$key]] = &$field->name;
+	        	}
+		    }
+		    call_user_func_array(array($stmt, 'bind_result'), $params);
+		    $this->results = $params;
+		}
+		return $stmt;
+
 	}
 
-	$stmt->free_result();
-	return $result;
-}
-
-
-
-
-/*
-Procedure: query
-Purpose: To perform prepared statement queries on the database.  This is a shortcut for the prepare and execute functions that is good for one-time uses.
-Parameters:
-	$sql: 		 (string, required)  	The sql string.
-	$parameters: 	(array, required)  	The array of parameters that is supposed to go into the sql string.
-	$types: 	(string, optional)	The string of types that is supposed to accompany the parameters array, in the same order.
-						Any types that are omitted will be treated as strings. 
-						i = integer, d = double, s = string, b = blob. 
-Returns: An associative array of results for SELECT statements or the stmt object otherwise.
-Preconditions: The prepare and execute functions must be defined.
-*/
-function query($sql, $parameters = array(), $types = '', $connection = NULL) {
-	if (!isset($connection)) {
-		$connection = $GLOBALS['connection'];
+	public function query($sql, $parameters = array(), $types = '', $connection = NULL) {
+	
+		if (!isset($connection)) {
+			$connection = $this->connection;
+		}
+		$stmt = $this->prepare($sql, $connection);
+		$executed_stmt = $this->execute($stmt, $parameters, $types);
+		$i = 0;
+		$results = array();
+		while ($executed_stmt->fetch()) {
+			$results[$i] = $this->results;
+			$i += 1;
+		}
+		return $results;
 	}
-	$stmt = prepare($sql, $connection);
-	return execute($stmt, $parameters, $types, $connection);
+
 }
 
 ?>
