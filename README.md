@@ -17,7 +17,7 @@ For most queries, just use the query method.  For a SELECT statement, query retu
 		WHERE thing = ? AND money = ? AND index = ?;
 	", array($dodad, $cost, $index), 'sdi');
 
-The third parameter in this example is the types string.  s indicates a string, d indicates a double, i indicates an integer, and b would indicate a blob.  If this parameter is omitted, all variables that are used in the sql statements will be treated as strings.
+The third parameter in this example is the types string.  s indicates a string, d indicates a double, i indicates an integer, and b would indicate a blob.  If this parameter is omitted, the execute method will decide what type they are.
 
 To get the last inserted id, just call 
 
