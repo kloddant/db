@@ -3,7 +3,7 @@
 class sql {
 
 	public $connection;
-	public $results;
+	public $row;
 
 	public function __construct($host = NULL, $username = NULL, $password = NULL, $database = NULL) {
 		$this->connect($host, $username, $password, $database);
@@ -96,7 +96,7 @@ class sql {
 	        	}
 		    }
 		    call_user_func_array(array($stmt, 'bind_result'), $params);
-		    $this->results = $params;
+		    $this->row = $params;
 		}
 		return $stmt;
 
@@ -112,7 +112,7 @@ class sql {
 		$i = 0;
 		$results = array();
 		while ($executed_stmt->fetch()) {
-			$results[$i] = $this->results;
+			$results[$i] = $this->row;
 			$i += 1;
 		}
 		return $results;
