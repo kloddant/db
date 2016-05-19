@@ -3,7 +3,8 @@
 class sql {
 
 	public $connection;
-	public $row;
+	private $row = array();
+	private $stmt;
 
 	public function __construct($host = NULL, $username = NULL, $password = NULL, $database = NULL) {
 		$this->connect($host, $username, $password, $database);
@@ -20,7 +21,7 @@ class sql {
 
 		$connection = new mysqli($host, $username, $password, $database);
 		if (!$connection) {
-			exit("Error: Could not connect to database.");
+			exit("Error: Could not connect to the database.");
 		}
 
 		$connection->set_charset("utf8");
@@ -98,6 +99,7 @@ class sql {
 		    call_user_func_array(array($stmt, 'bind_result'), $params);
 		    $this->row = $params;
 		}
+		$this->stmt = $stmt;
 		return $stmt;
 
 	}
