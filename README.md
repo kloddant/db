@@ -10,9 +10,9 @@ To make the initial connection, instantiate the class.
     $db = new sql($host = "", $db_username = "", $db_password = "", $database = "");
 
 ##Queries
-For pretty much anything, use the query method.  The query method has a buffer parameter, which is set to default to false.  For simplicity, you can set $buffer = false when you expect small result sets, but to save memory for large result sets, set $buffer = true.  
+For pretty much anything, use the query method.  The query method has a buffer parameter, which is set to default to true.  For simplicity, you can set $buffer = true when you expect small result sets, but to save memory for large result sets, set $buffer = false.  
 ###Buffered Queries
-With $buffer = false, for a SELECT statement, query returns a numeric array of associative arrays that can be accessed like $results[0]['thing'].
+With $buffer = true, for a SELECT statement, query returns a numeric array of associative arrays that can be accessed like $results[0]['thing'].
 
     $results = $db->query("
         SELECT *
