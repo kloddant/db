@@ -1,32 +1,39 @@
 # db
-A class that assists with using mysqli for prepared statements.
+A php include that defines and instantiates a sql class that has a set of methods that assist with using mysqli for prepared statements.  The sql class is basically a wrapper for the mysqli::stmt and mysqli:result classes rolled into one.
 
-##Usage:
+##Including
+    require_once("db.php");
 
-	require_once("db.php");
+##Connection
+To make the initial connection, instantiate the class.
 
-To make the initial connection, instantiate the class.  If you need to use multiple databases, you can either create another class instance, or you can change the connection for the current instance by using the connect method, which takes the same arguments as the class itself. 
+    $db = new sql($host = "", $db_username = "", $db_password = "", $database = "");
 
-	$db = new sql($host = "", $db_username = "", $db_password = "", $database = "")
+##Queries
+For pretty much anything, use the query method.  The query method has a buffer parameter, which is set to default to false.  For simplicity, you can set $buffer = false when you expect small result sets, but to save memory for large result sets, set $buffer = true.  
+###Buffered Queries
+With $buffer = false, for a SELECT statement, query returns a numeric array of associative arrays that can be accessed like $results[0]['thing'].
 
-For most queries, just use the query method.  For a SELECT statement, query returns a numeric array of associative arrays that can be accessed like $results[0]['thing'].  For anything else, query returns the statement object.  The query method saves the entire result set into memory as an associative array, so it is not appropriate for queries that return large result sets.
+    $results = $db->query("
+        SELECT *
+        FROM stuff
+        WHERE thing = ? AND money = ? AND index = ?;
+    ", array($dodad, $cost, $index), 'sdi');
 
-	$results = $db->query("
-		SELECT *
-		FROM stuff
-		WHERE thing = ? AND money = ? AND index = ?;
-	", array($dodad, $cost, $index), 'sdi');
+The third parameter in this example is the types string. s indicates a string, d indicates a double, i indicates an integer, and b would indicate a blob. If this parameter is omitted, the execute method will determine what type the parameters are.
 
-The third parameter in this example is the types string.  s indicates a string, d indicates a double, i indicates an integer, and b would indicate a blob.  If this parameter is omitted, the execute method will decide what type they are.
+###Un-buffered Queries
+Because the query method saves the result set to memory, it should not be used where large result sets are expected, so set $buffer to false.
 
-To get the last inserted id, just call 
+    $results = $db->query("
+        SELECT *
+        FROM stuff
+        WHERE thing = ? AND money = ? AND index = ?;
+    ", array($dodad, $cost, $index), 'sdi', false);
+    while ($stuff = $results->fetch_assoc()) {
+        var_dump($stuff);
+    }
 
-	$db->connection->insert_id;
-	
-To perform a query that will return a large result set, use prepare, execute, and fetch.  The execute method prepares the results array with the right keys and binds those keys, and the fetch method saves a row to those keys.
+To get the last inserted id, just call
 
-    $stmt = $db->prepare($sql);
-	$executed_stmt = $this->execute($stmt, $parameters, $types);
-	while ($executed_stmt->fetch()) {
-		$results = $db->row;
-	}
+    $connection->insert_id;
