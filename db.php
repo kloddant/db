@@ -102,18 +102,91 @@ class sql {
 
 	}
 
-	public function query($sql, $parameters = array(), $types = '', $connection = NULL) {
+	public function query($sql, $parameters = array(), $types = '', $buffer=true, $connection = NULL) {
 	
 		if (!isset($connection)) {
 			$connection = $this->connection;
 		}
 		$stmt = $this->prepare($sql, $connection);
 		$executed_stmt = $this->execute($stmt, $parameters, $types);
-		$i = 0;
+		if ($buffer) {
+			return $this->fetch_all("MYSQLI_ASSOC");
+		}
+		else {
+			return $this;
+		}
+	}
+
+	public function fetch_array($resulttype = "MYSQLI_BOTH") {
+		if ($resulttype == "MYSQLI_BOTH") {
+			return ($this->stmt->fetch() ? array_merge($this->row, array_values($this->row)) : false);
+		}
+		else if ($resulttype == "MYSQLI_ASSOC") {
+			return $this->fetch_assoc();
+		}
+		else if ($resulttype == "MYSQLI_NUM") {
+			return $this->fetch_row();
+		}
+	}
+
+	public function fetch_row() {
+		return ($this->stmt->fetch() ? array_values($this->row) : false);
+	}
+
+	public function fetch_assoc() {
+		return ($this->stmt->fetch() ? $this->row : false);
+	}
+
+	public function affected_rows() {
+		return $this->stmt->affected_rows;
+	}
+
+	public function change_user($username, $password, $database) {
+		if (!isset($password)) {
+			exit('Error: No database password defined.');
+		}
+		if (!isset($database)) {
+			exit('Error: No database defined.');
+		}
+		return $this->connection->change_user($username, $password, $database);
+	}
+
+	public function data_seek($offset = 0) {
+		return $this->stmt->data_seek($offset);
+	}
+
+	public function field_count() {
+		return $this->stmt->field_count;
+	}
+
+	public function insert_id() {
+		return $this->connection->insert_id;
+	}
+
+	public function num_rows() {
+		return $this->stmt->num_rows;
+	}
+
+	public function get_result() {
+		return $this;
+	}
+
+	public function fetch_all($resulttype = "MYSQLI_NUM") {
 		$results = array();
-		while ($executed_stmt->fetch()) {
-			$results[$i] = $this->row;
-			$i += 1;
+		if ($resulttype == "MYSQLI_BOTH") {
+			while ($result = $this->fetch_array("MYSQLI_BOTH")) {
+				$results[] = $result;
+			}
+		}
+		else if ($resulttype == "MYSQLI_ASSOC") {
+			while ($result = $this->fetch_assoc()) {
+				$results[] = $result;
+			}
+		}
+		else if ($resulttype == "MYSQLI_NUM") {
+			while ($result = $this->fetch_row()) {
+				$results[] = $result;
+			}
 		}
 		return $results;
 	}
