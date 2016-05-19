@@ -1,5 +1,5 @@
 # db
-A php include that defines and instantiates a sql class that has a set of methods that assist with using mysqli for prepared statements.  The sql class is basically a wrapper for the mysqli::stmt and mysqli:result classes rolled into one.
+A php include that defines and a class that has a set of methods that assist with using mysqli for prepared statements.  The class is basically a wrapper for the mysqli::stmt and mysqli:result classes rolled into one.
 
 ##Including
     require_once("db.php");
