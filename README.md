@@ -1,5 +1,5 @@
 # db
-A php include that defines classes that assist with using mysqli for prepared statements without mysqlnd.  The classes are basically wrappers for the mysqli::stmt and mysqli:result classes rolled into one.
+A php include that defines classes that assist with using mysqli for prepared statements without mysqlnd.  The classes are basically wrappers for the mysqli::stmt and mysqli::result classes rolled into one.
 
 ##Including
     require_once("db.php");
