@@ -37,4 +37,4 @@ When large resultsets are expected, set the $buffer parameter to false.
 ###Last Inserted Id
 To get the last inserted id, just call
 
-    $connection->insert_id;
+    $db->insert_id;
