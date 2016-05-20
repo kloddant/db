@@ -15,6 +15,10 @@ class sql {
 	protected static function convert_to_reference(&$value) {
 		return $value;
 	}
+	
+	public static function question_marks(array $array) {
+		return implode(",", array_fill(0, count($array), "?"));
+	}
 
 	public function connect($host = "localhost", $username = "root", $password = NULL, $database = NULL) {
 
@@ -46,7 +50,7 @@ class sql {
 
 	}
 
-	public function execute($stmt, $parameters = array(), $types = '') {
+	public function execute($stmt, array $parameters = array(), $types = '') {
 
 		if (count($parameters) > 0) {
 			// Rectify any inconsistencies between $parameters and $types.
@@ -106,7 +110,7 @@ class sql {
 
 	}
 
-	public function query($sql, $parameters = array(), $types = '', $buffer=true, $transpose = false) {
+	public function query($sql, array $parameters = array(), $types = '', $buffer=true, $transpose = false) {
 	
 		$connection = $this->connection;
 		$stmt = $this->prepare($sql, $connection);
