@@ -1,5 +1,5 @@
 # db
-A php include that defines and a class that has a set of methods that assist with using mysqli for prepared statements.  The class is basically a wrapper for the mysqli::stmt and mysqli:result classes rolled into one.
+A php include that defines classes that assist with using mysqli for prepared statements without mysqlnd.  The classes are basically wrappers for the mysqli::stmt and mysqli:result classes rolled into one.
 
 ##Including
     require_once("db.php");
@@ -23,7 +23,7 @@ With $buffer = true, for a SELECT statement, query returns a numeric array of as
 The third parameter in this example is the types string. s indicates a string, d indicates a double, i indicates an integer, and b would indicate a blob. If this parameter is omitted, the execute method will determine what type the parameters are.
 
 ###Un-buffered Queries
-Because the query method saves the result set to memory, it should not be used where large result sets are expected, so set $buffer to false.
+When large resultsets are expected, set the $buffer parameter to false.
 
     $results = $db->query("
         SELECT *
@@ -34,6 +34,7 @@ Because the query method saves the result set to memory, it should not be used w
         var_dump($stuff);
     }
 
+###Last Inserted Id
 To get the last inserted id, just call
 
     $connection->insert_id;
