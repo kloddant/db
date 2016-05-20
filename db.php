@@ -187,7 +187,7 @@ class sql_result extends sql {
 		return $this->stmt->num_rows;
 	}
 
-	public function fetch_all($resulttype = "MYSQLI_NUM", $transpose = false) {
+	public function fetch_all($resulttype = "MYSQLI_NUM") {
 		$results = array();
 		if ($resulttype == "MYSQLI_BOTH") {
 			while ($result = $this->fetch_array("MYSQLI_BOTH")) {
@@ -204,13 +204,10 @@ class sql_result extends sql {
 				$results[] = $result;
 			}
 		}
-		if ($transpose) {
-			$results = $this->transpose($results);
-		}
 		return $results;
 	}
 
-	private static function transpose($array) {
+	public static function transpose($array) {
 		$transposed = array();
 		foreach ($array as $row => $values) {
 			foreach ($values as $column => $cell) {
