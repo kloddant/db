@@ -148,7 +148,7 @@ class sql_result extends sql {
 	}
 
 	public function __destruct() {
-		$this->free();
+		$this->free_result();
 	}
 
 	public function fetch_row() {
@@ -217,7 +217,7 @@ class sql_result extends sql {
 		return $transposed;
 	}
 
-	public function free() {
+	public function free_result() {
 		$this->stmt->free_result();
 	}
 
