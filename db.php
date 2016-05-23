@@ -48,11 +48,13 @@ class sql {
 		if (!($stmt = $connection->prepare($sql))) {
 		    echo "Prepare failed: (" . $connection->errno . ") " . $connection->error;
 		}
+		$stmt = new sql_stmt($stmt);
 		return $stmt;
 
 	}
 
 	public function execute($stmt, array $parameters = array(), $types = '') {
+		$stmt = $stmt->stmt;
 
 		if (count($parameters) > 0) {
 			// Rectify any inconsistencies between $parameters and $types.
@@ -135,7 +137,19 @@ class sql {
 
 }
 
+class sql_stmt extends sql {
 
+	public $stmt;
+
+	public function __construct($stmt) {
+		$this->stmt = $stmt;
+	}
+
+	public function execute(array $parameters = array(), $types = '') {
+		$this->execute($this->stmt, $parameters, $types);
+	}
+
+}
 
 class sql_result extends sql {
 
@@ -145,6 +159,16 @@ class sql_result extends sql {
 	public function __construct($stmt, $row) {
 		$this->stmt = $stmt;
 		$this->row = $row;
+	}
+
+	public static function transpose($array) {
+		$transposed = array();
+		foreach ($array as $row => $values) {
+			foreach ($values as $column => $cell) {
+				$transposed[$column][$row] = $cell;
+			}
+		}
+		return $transposed;
 	}
 
 	public function fetch_row() {
@@ -201,16 +225,6 @@ class sql_result extends sql {
 			}
 		}
 		return $results;
-	}
-
-	public static function transpose($array) {
-		$transposed = array();
-		foreach ($array as $row => $values) {
-			foreach ($values as $column => $cell) {
-				$transposed[$column][$row] = $cell;
-			}
-		}
-		return $transposed;
 	}
 
 	public function free_result() {
