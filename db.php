@@ -9,13 +9,15 @@ class sql {
 	}
 
 	public function __destruct() {
-		$this->connection->close();
+		if ($this->connection) {
+			$this->connection->close();
+		}
 	}
 
 	protected static function convert_to_reference(&$value) {
 		return $value;
 	}
-	
+
 	public static function question_marks(array $array) {
 		return implode(",", array_fill(0, count($array), "?"));
 	}
@@ -110,17 +112,11 @@ class sql {
 
 	}
 
-	public function query($sql, array $parameters = array(), $types = '', $buffer=true, $transpose = false) {
-	
+	public function query($sql, array $parameters = array(), $types = '') {
 		$connection = $this->connection;
 		$stmt = $this->prepare($sql, $connection);
 		$executed_stmt = $this->execute($stmt, $parameters, $types);
-		if ($buffer) {
-			return $executed_stmt->fetch_all("MYSQLI_ASSOC", $transpose);
-		}
-		else {
-			return $executed_stmt;
-		}
+		return $executed_stmt->fetch_all("MYSQLI_ASSOC");
 	}
 
 	public function change_user($username, $password, $database) {
@@ -149,10 +145,6 @@ class sql_result extends sql {
 	public function __construct($stmt, $row) {
 		$this->stmt = $stmt;
 		$this->row = $row;
-	}
-
-	public function __destruct() {
-		$this->free_result();
 	}
 
 	public function fetch_row() {
