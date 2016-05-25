@@ -2,7 +2,7 @@
 
 class sql {
 
-	public $connection;
+	private $connection;
 
 	public function __construct($host = NULL, $username = NULL, $password = NULL, $database = NULL) {
 		$this->connect($host, $username, $password, $database);
@@ -22,6 +22,16 @@ class sql {
 		return implode(",", array_fill(0, count($array), "?"));
 	}
 
+	public static function transpose(array $array) {
+		$transposed = array();
+		foreach ($array as $row => $values) {
+			foreach ($values as $column => $cell) {
+				$transposed[$column][$row] = $cell;
+			}
+		}
+		return $transposed;
+	}
+
 	public function connect($host = "localhost", $username = "root", $password = NULL, $database = NULL) {
 
 		if (!isset($password)) {
@@ -37,24 +47,49 @@ class sql {
 		}
 
 		$connection->set_charset("utf8");
-
 		$this->connection = $connection;
 		return $connection;
 	}
 
 	public function prepare($sql) {
-
 		$connection = $this->connection;
 		if (!($stmt = $connection->prepare($sql))) {
 		    echo "Prepare failed: (" . $connection->errno . ") " . $connection->error;
+		    $stmt = false;
 		}
-		$stmt = new sql_stmt($stmt);
+		else {
+			$stmt = new sql_stmt($stmt);
+		}
 		return $stmt;
-
 	}
 
-	public function execute($stmt, array $parameters = array(), $types = '') {
-		$stmt = $stmt->stmt;
+	public function query($sql, array $parameters = array(), $types = '') {
+		$stmt = $this->prepare($sql);
+		$executed_stmt = $stmt->execute($parameters, $types);
+		$results = false;
+		if ($executed_stmt) {
+			$results = $executed_stmt->fetch_all("MYSQLI_ASSOC");
+			$results = ($results ? $results : true);
+		}
+		return $results;
+	}
+
+	public function insert_id() {
+		return $this->connection->insert_id;
+	}
+
+}
+
+class sql_stmt extends sql {
+
+	private $stmt;
+
+	public function __construct($stmt) {
+		$this->stmt = $stmt;
+	}
+
+	public function execute(array $parameters = array(), $types = '') {
+		$stmt = $this->stmt;
 
 		if (count($parameters) > 0) {
 			// Rectify any inconsistencies between $parameters and $types.
@@ -114,41 +149,6 @@ class sql {
 
 	}
 
-	public function query($sql, array $parameters = array(), $types = '') {
-		$connection = $this->connection;
-		$stmt = $this->prepare($sql, $connection);
-		$executed_stmt = $this->execute($stmt, $parameters, $types);
-		return $executed_stmt->fetch_all("MYSQLI_ASSOC");
-	}
-
-	public function change_user($username, $password, $database) {
-		if (!isset($password)) {
-			exit('Error: No database password defined.');
-		}
-		if (!isset($database)) {
-			exit('Error: No database defined.');
-		}
-		return $this->connection->change_user($username, $password, $database);
-	}
-
-	public function insert_id() {
-		return $this->connection->insert_id;
-	}
-
-}
-
-class sql_stmt extends sql {
-
-	public $stmt;
-
-	public function __construct($stmt) {
-		$this->stmt = $stmt;
-	}
-
-	public function execute(array $parameters = array(), $types = '') {
-		$this->execute($this->stmt, $parameters, $types);
-	}
-
 }
 
 class sql_result extends sql {
@@ -159,16 +159,6 @@ class sql_result extends sql {
 	public function __construct($stmt, $row) {
 		$this->stmt = $stmt;
 		$this->row = $row;
-	}
-
-	public static function transpose($array) {
-		$transposed = array();
-		foreach ($array as $row => $values) {
-			foreach ($values as $column => $cell) {
-				$transposed[$column][$row] = $cell;
-			}
-		}
-		return $transposed;
 	}
 
 	public function fetch_row() {
