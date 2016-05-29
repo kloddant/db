@@ -29,15 +29,15 @@ The third parameter in this example is the types string. s indicates a string, d
 ###Repeated, Large Queries
 For queries that you expect to run repeatedly or whose result sets are large enough that you don't want to store them in memory all at once, run the query the longer way. 
 
-    $stmt= $db->prepare("
-       SELECT *
-       FROM stuff
-       WHERE thing = ? AND money = ? AND index = ?;
-   ");
-   $results = $stmt->execute(array($dodad, $cost, $index), 'sdi');
-   while ($row = $results->fetch_assoc()) {
-       var_dump($row);
-   }
+     $stmt= $db->prepare("
+        SELECT *
+        FROM stuff
+        WHERE thing = ? AND money = ? AND index = ?;
+    ");
+    $results = $stmt->execute(array($dodad, $cost, $index), 'sdi');
+    while ($row = $results->fetch_assoc()) {
+        var_dump($row);
+    }
 
 ###Last Inserted Id
 To get the last inserted id, just call
