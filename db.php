@@ -69,7 +69,7 @@ class sql {
 		$results = false;
 		if ($executed_stmt) {
 			$results = $executed_stmt->fetch_all("MYSQLI_ASSOC");
-			$results = ($results ? $results : true);
+			$results = ($results ? $results : $this->insert_id());
 		}
 		return $results;
 	}
