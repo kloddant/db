@@ -69,7 +69,6 @@ class sql {
 		$results = false;
 		if ($executed_stmt) {
 			$results = $executed_stmt->fetch_all("MYSQLI_ASSOC");
-			$results = ($results ? $results : $this->insert_id());
 		}
 		return $results;
 	}
@@ -162,16 +161,16 @@ class sql_result extends sql {
 	}
 
 	public function fetch_row() {
-		return ($this->stmt->fetch() ? array_values(array_map("sql_result::convert_to_reference", $this->row)) : false);
+		return ($this->stmt->fetch() ? array_values(array_map("sql_result::convert_to_reference", $this->row)) : null);
 	}
 
 	public function fetch_assoc() {
-		return ($this->stmt->fetch() ? array_map("sql_result::convert_to_reference", $this->row) : false);
+		return ($this->stmt->fetch() ? array_map("sql_result::convert_to_reference", $this->row) : null);
 	}
 
 	public function fetch_array($resulttype = "MYSQLI_BOTH") {
 		if ($resulttype == "MYSQLI_BOTH") {
-			return ($this->stmt->fetch() ? array_merge($this->row, array_values($this->row)) : false);
+			return ($this->stmt->fetch() ? array_merge($this->row, array_values($this->row)) : null);
 		}
 		else if ($resulttype == "MYSQLI_ASSOC") {
 			return $this->fetch_assoc();
