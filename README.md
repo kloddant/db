@@ -48,12 +48,8 @@ To get the last inserted id, just call
 For queries that use IN, use sprintf in conjunction with implode, array_fill, and count to create and insert a string with a dynamic number of question marks before you prepare the query.
 
     $progenitor = $db->query(sprintf("
-		SELECT *
-		FROM ".$table_prefix."posts
-		WHERE ID IN (%s)
-		AND post_type = 'page'
-		AND post_status = 'publish'
-		AND (post_parent IS NULL OR post_parent = 0)
-		LIMIT 1
-	", implode(",", array_fill(0, count($ancestor_ids), "?"))), $ancestor_ids);
+	SELECT *
+	FROM posts
+	WHERE ID IN (%s)
+    ", implode(",", array_fill(0, count($ancestor_ids), "?"))), $ancestor_ids);
 
