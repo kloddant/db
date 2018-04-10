@@ -1,6 +1,15 @@
 # db
 A php include that defines and instantiates classes and that assist with using mysqli for prepared statements. The classes are basically wrappers for the mysqli, mysqli_stmt, and mysqli_result classes. The main differences are that the wrapper functions contain fewer properties and methods, and the sql_stmt::execute method has two new arguments. 
 
+## Compatibility
+The function definition for convert_to_reference needs to be written differently for php 5.6 vs php 5.7.
+
+### php 5.6
+    protected static function convert_to_reference($value) {
+    
+### php 5.7
+    protected static function &convert_to_reference($value) {
+
 ## Including
     require_once("db.php");
 
