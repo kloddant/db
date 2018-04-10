@@ -14,7 +14,7 @@ class sql {
 		}
 	}
 
-	protected static function convert_to_reference(&$value) {
+	protected static function &convert_to_reference(&$value) {
 		return $value;
 	}
 
